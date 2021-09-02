@@ -33,9 +33,9 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.VerboseMode;
 
-@OperationsPerInvocation(value = InputBenchmark.RECORDS_PER_INVOCATION)
 public class InputBenchmark extends BenchmarkBase {
-	public static final int RECORDS_PER_INVOCATION = 15_000_000;
+	public static final int MAP_RECORDS_PER_INVOCATION = 25_000_000;
+	public static final int MAP_REBALANCE_RECORDS_PER_INVOCATION = 15_000_000;
 	private static final long CHECKPOINT_INTERVAL_MS = 100;
 
 	public static void main(String[] args)
@@ -52,13 +52,14 @@ public class InputBenchmark extends BenchmarkBase {
 	public LongSourceType sourceType;
 
 	@Benchmark
+	@OperationsPerInvocation(value = MAP_RECORDS_PER_INVOCATION)
 	public void mapSink(FlinkEnvironmentContext context) throws Exception {
 
 		StreamExecutionEnvironment env = context.env;
 		env.enableCheckpointing(CHECKPOINT_INTERVAL_MS);
 		env.setParallelism(1);
 
-		DataStreamSource<Long> source = sourceType.source(env, RECORDS_PER_INVOCATION);
+		DataStreamSource<Long> source = sourceType.source(env, MAP_RECORDS_PER_INVOCATION);
 		source
 				.map(new MultiplyByTwo())
 				.addSink(new DiscardingSink<>());
@@ -67,13 +68,14 @@ public class InputBenchmark extends BenchmarkBase {
 	}
 
 	@Benchmark
+	@OperationsPerInvocation(value = InputBenchmark.MAP_REBALANCE_RECORDS_PER_INVOCATION)
 	public void mapRebalanceMapSink(FlinkEnvironmentContext context) throws Exception {
 
 		StreamExecutionEnvironment env = context.env;
 		env.enableCheckpointing(CHECKPOINT_INTERVAL_MS);
 		env.setParallelism(1);
 
-		DataStreamSource<Long> source = sourceType.source(env, RECORDS_PER_INVOCATION);
+		DataStreamSource<Long> source = sourceType.source(env, MAP_REBALANCE_RECORDS_PER_INVOCATION);
 		source
 				.map(new MultiplyByTwo())
 				.rebalance()
