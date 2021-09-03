@@ -48,7 +48,7 @@ public class InputBenchmark extends BenchmarkBase {
 		new Runner(options).run();
 	}
 
-	@Param({"LEGACY", "F27_UNBOUNDED"})
+	@Param({"F27_UNBOUNDED"})
 	public LongSourceType sourceType;
 
 	@Benchmark
